@@ -1,3 +1,6 @@
+@php
+    $kategori = \App\Models\KategoriMainan::all();
+@endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
         <a href="/" class="app-brand-link">
@@ -57,8 +60,8 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
-        <li class="menu-item {{ request()->routeIs('dashboard') || request()->routeIs('welcome') ? 'active' : '' }}">
-            <a href="{{ route('welcome') }}" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('dashboard') || request()->routeIs('dashboard.index') ? 'active' : '' }}">
+            <a href="{{ route('dashboard.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
             </a>
@@ -66,14 +69,14 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Kategori</span>
         </li>
-        {{-- @foreach ($kategori as $item) --}}
+        @foreach ($kategori as $item)
         <li class="menu-item ">
-            <a href="#" class="menu-link">
-                <i class="menu-icon tf-icons bx bxs-file-plus"></i>
-                <div data-i18n="Analytics">testing</div>
+            <a href="{{ route('dashboard.index') }}?kategori={{ $item->id }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-{{ $item->icon }}"></i>
+                <div data-i18n="Analytics">{{ $item->nama }}</div>
             </a>
         </li>
-        {{-- @endforeach --}}
+        @endforeach
         @if (auth()->user() && auth()->user()->is_admin)
             <li class="menu-header small text-uppercase">
                 <span class="menu-header-text">Admin</span>
@@ -96,7 +99,7 @@
                 <span class="menu-header-text">Transaksi</span>
             </li>
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a href="{{ route('purchase.history') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-history"></i>
                     <div data-i18n="Account Settings">History Transaksi</div>
                 </a>

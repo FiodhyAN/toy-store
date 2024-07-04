@@ -6,12 +6,15 @@ use App\Http\Controllers\ProfileController;
 use App\Models\KategoriMainan;
 use App\Models\Mainan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 
-Route::get('/', function () {
-    $mainan = Mainan::with('kategori')->get();
-    $kategori = KategoriMainan::all();
-    return view('welcome', compact('mainan', 'kategori'));
-})->name('welcome');
+// Route::get('/', function () {
+//     $mainan = Mainan::with('kategori')->get();
+//     $kategori = KategoriMainan::all();
+//     return view('welcome', compact('mainan', 'kategori'));
+// })->name('welcome');
+
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'isAdmin']], function () {
     Route::group(['prefix' => 'mainan'], function () {
@@ -33,6 +36,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::prefix('purchase')->group(function () {
+        Route::post('/store', [DashboardController::class, 'store'])->name('purchase.store');
+        Route::get('/history', [DashboardController::class, 'history'])->name('purchase.history');
+    });
 });
 
 require __DIR__ . '/auth.php';
