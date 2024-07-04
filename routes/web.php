@@ -23,6 +23,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'isAdmin']], functio
     Route::group(['prefix' => 'kategori'], function () {
         Route::get('/', [KategoriMainanController::class, 'index'])->name('kategori.index');
         Route::post('/store', [KategoriMainanController::class, 'store'])->name('kategori.store');
+        Route::get('/edit', [KategoriMainanController::class, 'edit'])->name('kategori.edit');
         Route::put('/update', [KategoriMainanController::class, 'update'])->name('kategori.update');
         Route::delete('/destroy', [KategoriMainanController::class, 'destroy'])->name('kategori.destroy');
     });

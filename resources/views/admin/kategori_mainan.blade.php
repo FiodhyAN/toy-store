@@ -41,18 +41,18 @@
                 </div>
                 <form id="editForm">
                     @csrf
-                    <input type="hidden" name="old_barang_id" id="old_barang_id">
+                    <input type="hidden" name="old_kategori_id" id="old_kategori_id">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="barang_id" class="form-label">ID Barang</label>
-                            <input type="text" class="form-control" id="barang_id_edit" name="barang_id" required>
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 barang_id-error">
+                            <label for="nama_kategori" class="form-label">Nama Kategori</label>
+                            <input type="text" class="form-control" id="nama_kategori_edit" name="nama_kategori">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_kategori-error">
                             </ul>
                         </div>
                         <div class="mb-3">
-                            <label for="nama_barang" class="form-label">Nama Barang</label>
-                            <input type="text" class="form-control" id="nama_barang_edit" name="nama_barang">
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_barang-error">
+                            <label for="icon" class="form-label">Icon</label>
+                            <input type="text" class="form-control" id="icon_edit" name="icon">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 icon-error">
                             </ul>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                             </td>
                             <td>{{ $kategori->nama }}</td>
                             <td>
-                                {{ $kategori->icon }}
+                                <i class="bx bx-{{ $kategori->icon }}"></i> {{ $kategori->icon }}
                             </td>
                             <td>
                                 <div class="dropdown">
@@ -188,6 +188,135 @@
                         })
                     }
                 });
+            })
+
+            $('.edit_btn').click(function() {
+                const kategori_id = $(this).val();
+                $.ajax({
+                    url: "{{ route('kategori.edit') }}",
+                    type: "GET",
+                    data: {
+                        id: kategori_id
+                    },
+                    success: function(response) {
+                        $('#old_kategori_id').val(response.data.id);
+                        $('#nama_kategori_edit').val(response.data.nama);
+                        $('#icon_edit').val(response.data.icon);
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+
+            })
+
+            $('#editForm').on('submit', function(e) {
+                e.preventDefault();
+                $('#editModal').modal('hide');
+                let old_kategori_id = $('#old_kategori_id').val();
+                Swal.fire({
+                    title: 'Loading',
+                    text: 'Updating data...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                });
+
+                $.ajax({
+                    url: "{{ route('kategori.update') }}",
+                    type: "PUT",
+                    data: $(this).serialize() + `&id=${old_kategori_id}`,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update data',
+                        }).then((result) => {
+                            $('#editModal').modal('show');
+                            let errors = xhr.responseJSON.errors;
+                            if ('nama_kategori' in errors) {
+                                $('.nama_kategori-error').html('');
+                                errors.nama_kategori.forEach(error => {
+                                    $('.nama_kategori-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.nama_kategori-error').html('');
+                            }
+
+                            if ('icon' in errors) {
+                                $('.icon-error').html('');
+                                errors.icon.forEach(error => {
+                                    $('.icon-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.icon-error').html('');
+                            }
+                        })
+                    }
+                });
+            })
+
+            $('.delete_btn').click(function() {
+                const kategori_id = $(this).val();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading',
+                            text: 'Deleting data...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            didOpen: () => {
+                                Swal.showLoading()
+                            },
+                        });
+
+                        $.ajax({
+                            url: "{{ route('kategori.destroy') }}",
+                            type: "DELETE",
+                            data: {
+                                id: kategori_id,
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message,
+                                }).then(function() {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Failed to delete data',
+                                });
+                            }
+                        });
+                    }
+                })
             })
         </script>
     @endsection

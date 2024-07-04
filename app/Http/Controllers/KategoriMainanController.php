@@ -58,4 +58,84 @@ class KategoriMainanController extends Controller
             ], 500);
         }
     }
+
+    public function edit(Request $request)
+    {
+        $barang = KategoriMainan::find($request->id);
+
+        return response()->json([
+            'data' => $barang
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'id' => 'required|exists:kategori_mainans,id',
+            'nama_kategori' => 'required',
+            'icon' => 'required'
+        ], [
+            'old_kategori_id.required' => 'ID kategori harus diisi',
+            'old_kategori_id.exists' => 'ID kategori tidak ditemukan',
+            'nama_kategori.required' => 'Nama kategori harus diisi',
+            'icon.required' => 'Icon kategori harus diisi'
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => 'Failed to update barang',
+                'errors' => $validation->errors(),
+                'data' => null
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $kategori = KategoriMainan::find($request->id);
+            $kategori->nama = $request->nama_kategori;
+            $kategori->icon = $request->icon;
+            $kategori->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Barang updated successfully',
+                'errors' => [],
+                'data' => ['kategoris' => $kategori]
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to update barang',
+                'errors' => [$e->getMessage()],
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $kategori = KategoriMainan::find($request->id);
+            $kategori->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Barang deleted successfully',
+                'errors' => [],
+                'data' => ['kategoris' => $kategori]
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to delete barang',
+                'errors' => [$e->getMessage()],
+                'data' => null
+            ], 500);
+        }
+    }
 }
