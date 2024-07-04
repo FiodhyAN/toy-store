@@ -8,19 +8,37 @@
                     <h5 class="modal-title" id="addModalLabel">Tambah Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addForm">
+                <form id="addForm" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="barang_id" class="form-label">Nama Produk</label>
-                            <input type="text" class="form-control" id="barang_id" name="barang_id" required>
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 barang_id-error">
+                            <label for="nama_produk" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control" id="nama_produk" name="nama_produk">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_produk-error">
                             </ul>
                         </div>
                         <div class="mb-3">
-                            <label for="nama_barang" class="form-label">Kategori</label>
-                            <input type="text" class="form-control" id="nama_barang" name="nama_barang">
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_barang-error">
+                            <label for="id_kategori" class="form-label">Kategori</label>
+                            <select class="form-select" id="id_kategori" name="id_kategori">
+                                <option value="">Pilih Kategori</option>
+                                @foreach ($kategoris as $kategori)
+                                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                                @endforeach
+                            </select>
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 id_kategori-error">
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <label for="harga_produk" class="form-label">Harga</label>
+                            <input type="number" class="form-control" id="harga_produk" name="harga_produk">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 harga_produk-error">
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <label for="foto_produk" class="form-label">Foto</label>
+                            <input type="file" class="form-control" id="foto_produk" name="foto_produk"
+                                accept="image/*">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 foto_produk-error">
                             </ul>
                         </div>
                     </div>
@@ -139,6 +157,88 @@
                 pageLength: 10,
                 sort: false,
             });
+
+            $('#addForm').on('submit', function(e) {
+                e.preventDefault();
+                $('#addModal').modal('hide');
+                Swal.fire({
+                    title: 'Loading',
+                    text: 'Adding new data...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                });
+
+                let formData = new FormData(this);
+                console.log(formData);
+
+                $.ajax({
+                    url: "{{ route('mainan.store') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to add new data',
+                        }).then((result) => {
+                            console.log(xhr);
+                            $('#addModal').modal('show');
+                            let errors = xhr.responseJSON.errors;
+                            console.log(errors);
+                            if ('nama_produk' in errors) {
+                                $('.nama_produk-error').html('');
+                                errors.nama_produk.forEach(error => {
+                                    $('.nama_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.nama_produk-error').html('');
+                            }
+
+                            if ('id_kategori' in errors) {
+                                $('.id_kategori-error').html('');
+                                errors.id_kategori.forEach(error => {
+                                    $('.id_kategori-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.id_kategori-error').html('');
+                            }
+
+                            if ('harga_produk' in errors) {
+                                $('.harga_produk-error').html('');
+                                errors.harga_produk.forEach(error => {
+                                    $('.harga_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.harga_produk-error').html('');
+                            }
+
+                            if ('foto_produk' in errors) {
+                                $('.foto_produk-error').html('');
+                                errors.foto_produk.forEach(error => {
+                                    $('.foto_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.foto_produk-error').html('');
+                            }
+                        })
+                    }
+                });
+            })
         </script>
     @endsection
 </x-app-layout>

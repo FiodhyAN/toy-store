@@ -13,13 +13,13 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="nama" class="form-label">Nama Kategori</label>
-                            <input type="text" class="form-control" id="nama" name="nama">
+                            <input type="text" class="form-control" id="nama" name="nama" required>
                             <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama-error">
                             </ul>
                         </div>
                         <div class="mb-3">
                             <label for="icon" class="form-label">Icon</label>
-                            <input type="text" class="form-control" id="icon" name="icon">
+                            <input type="text" class="form-control" id="icon" name="icon" required>
                             <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 icon-error">
                             </ul>
                         </div>

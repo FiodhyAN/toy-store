@@ -9,7 +9,7 @@ class Mainan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama', 'harga', 'foto'];
+    protected $fillable = ['nama', 'harga', 'foto', 'id_kategori'];
 
     public function kategori()
     {
