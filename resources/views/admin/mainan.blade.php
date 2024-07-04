@@ -54,23 +54,43 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Barang</h5>
+                    <h5 class="modal-title" id="editModalLabel">Edit Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editForm">
+                <form id="editForm" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="old_barang_id" id="old_barang_id">
+                    <input type="hidden" name="old_produk_id" id="old_produk_id">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="barang_id" class="form-label">ID Barang</label>
-                            <input type="text" class="form-control" id="barang_id_edit" name="barang_id" required>
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 barang_id-error">
+                            <label for="nama_produk" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control" id="nama_produk_edit" name="nama_produk"
+                                required>
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_produk-error">
                             </ul>
                         </div>
                         <div class="mb-3">
-                            <label for="nama_barang" class="form-label">Nama Barang</label>
-                            <input type="text" class="form-control" id="nama_barang_edit" name="nama_barang">
-                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 nama_barang-error">
+                            <label for="id_kategori" class="form-label">Kategori</label>
+                            <select class="form-select" id="id_kategori_edit" name="id_kategori" required>
+                                <option value="">Pilih Kategori</option>
+                                @foreach ($kategoris as $kategori)
+                                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                                @endforeach
+                            </select>
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 id_kategori-error">
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <label for="harga_produk" class="form-label">Harga</label>
+                            <input type="number" class="form-control" id="harga_produk_edit" name="harga_produk"
+                                required>
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 harga_produk-error">
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <label for="foto_produk" class="form-label">Foto</label>
+                            <input type="file" class="form-control" id="foto_produk_edit" name="foto_produk"
+                                accept="image/*">
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 foto_produk-error">
                             </ul>
                         </div>
                     </div>
@@ -118,7 +138,11 @@
                                 {{ $mainan->harga }}
                             </td>
                             <td>
-                                {{ $mainan->foto }}
+                                <a href="{{ asset('storage/products/' . $mainan->foto) }}" target="_blank"
+                                    class="btn btn-primary"
+                                    style="padding: 0.5rem 1rem; font-size: 0.875rem; line-height: 1.5; border-radius: 0.375rem;">
+                                    Lihat Gambar
+                                </a>
                             </td>
                             <td>
                                 <div class="dropdown">
@@ -239,6 +263,159 @@
                     }
                 });
             })
+
+            $('.edit_btn').on('click', function() {
+                let id = $(this).val();
+                console.log(id);
+                $.ajax({
+                    url: "{{ route('mainan.edit') }}",
+                    data: {
+                        id: id
+                    },
+                    type: "GET",
+                    success: function(response) {
+                        console.log(response);
+                        $('#old_produk_id').val(response.data.id);
+                        $('#nama_produk_edit').val(response.data.nama);
+                        $('#id_kategori_edit').val(response.data.id_kategori);
+                        $('#harga_produk_edit').val(response.data.harga);
+                    }
+                });
+            });
+
+            $('#editForm').on('submit', function(e) {
+                e.preventDefault();
+                $('#editModal').modal('hide');
+                Swal.fire({
+                    title: 'Loading',
+                    text: 'Updating data...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                });
+
+                let formData = new FormData(this);
+                formData.append('_method', 'PUT');
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                $.ajax({
+                    url: "{{ route('mainan.update') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update data',
+                        }).then((result) => {
+                            console.log(xhr);
+                            $('#editModal').modal('show');
+                            let errors = xhr.responseJSON.errors;
+                            console.log(errors);
+                            if ('nama_produk' in errors) {
+                                $('.nama_produk-error').html('');
+                                errors.nama_produk.forEach(error => {
+                                    $('.nama_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.nama_produk-error').html('');
+                            }
+
+                            if ('id_kategori' in errors) {
+                                $('.id_kategori-error').html('');
+                                errors.id_kategori.forEach(error => {
+                                    $('.id_kategori-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.id_kategori-error').html('');
+                            }
+
+                            if ('harga_produk' in errors) {
+                                $('.harga_produk-error').html('');
+                                errors.harga_produk.forEach(error => {
+                                    $('.harga_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.harga_produk-error').html('');
+                            }
+
+                            if ('foto_produk' in errors) {
+                                $('.foto_produk-error').html('');
+                                errors.foto_produk.forEach(error => {
+                                    $('.foto_produk-error').append(`<li>${error}</li>`);
+                                });
+                            } else {
+                                $('.foto_produk-error').html('');
+                            }
+                        })
+                    }
+                });
+            });
+
+            $('.delete_btn').on('click', function() {
+                let id = $(this).val();
+                console.log(id);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading',
+                            text: 'Deleting data...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            didOpen: () => {
+                                Swal.showLoading()
+                            },
+                        });
+                        $.ajax({
+                            url: "{{ route('mainan.destroy') }}",
+                            type: "DELETE",
+                            data: {
+                                id: id,
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    response.message,
+                                    'success'
+                                ).then(function() {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire(
+                                    'Error!',
+                                    'Failed to delete data',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                })
+            });
         </script>
     @endsection
 </x-app-layout>

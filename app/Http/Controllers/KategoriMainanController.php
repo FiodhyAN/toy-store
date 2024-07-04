@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriMainan;
+use App\Models\Mainan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -119,6 +120,7 @@ class KategoriMainanController extends Controller
         DB::beginTransaction();
         try {
             $kategori = KategoriMainan::find($request->id);
+            Mainan::where('id_kategori', $kategori->id)->delete();
             $kategori->delete();
 
             DB::commit();

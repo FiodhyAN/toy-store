@@ -20,6 +20,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'isAdmin']], functio
     Route::group(['prefix' => 'mainan'], function () {
         Route::get('/', [MainanController::class, 'index'])->name('mainan.index');
         Route::post('/store', [MainanController::class, 'store'])->name('mainan.store');
+        Route::get('/edit', [MainanController::class, 'edit'])->name('mainan.edit');
         Route::put('/update', [MainanController::class, 'update'])->name('mainan.update');
         Route::delete('/destroy', [MainanController::class, 'destroy'])->name('mainan.destroy');
     });
