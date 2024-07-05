@@ -60,7 +60,8 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
-        <li class="menu-item {{ request()->routeIs('dashboard') || request()->routeIs('dashboard.index') ? 'active' : '' }}">
+        <li
+            class="menu-item {{ request()->routeIs('dashboard') || request()->routeIs('dashboard.index') ? 'active' : '' }}">
             <a href="{{ route('dashboard.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
@@ -70,12 +71,13 @@
             <span class="menu-header-text">Kategori</span>
         </li>
         @foreach ($kategori as $item)
-        <li class="menu-item ">
-            <a href="{{ route('dashboard.index') }}?kategori={{ $item->id }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-{{ $item->icon }}"></i>
-                <div data-i18n="Analytics">{{ $item->nama }}</div>
-            </a>
-        </li>
+            <li class="menu-item ">
+                <a href="{{ route('dashboard.index') }}?kategori={{ $item->id }}" class="menu-link">
+                    <i
+                        class="menu-icon tf-icons bx bx-{{ $item->icon }} bxs-{{ $item->icon }} bxl-{{ $item->icon }}"></i>
+                    <div data-i18n="Analytics">{{ $item->nama }}</div>
+                </a>
+            </li>
         @endforeach
         @if (auth()->user() && auth()->user()->is_admin)
             <li class="menu-header small text-uppercase">

@@ -92,7 +92,9 @@
                             </td>
                             <td>{{ $kategori->nama }}</td>
                             <td>
-                                <i class="bx bx-{{ $kategori->icon }}"></i> {{ $kategori->icon }}
+                                <i
+                                    class="bx bx-{{ $kategori->icon }} bxl-{{ $kategori->icon }} bxs-{{ $kategori->icon }}"></i>
+                                {{ $kategori->icon }}
                             </td>
                             <td>
                                 <div class="dropdown">
