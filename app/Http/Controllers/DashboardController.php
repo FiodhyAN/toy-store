@@ -35,7 +35,8 @@ class DashboardController extends Controller
             $validation = Validator::make($request->all(), [
                 'id_produk' => 'required|exists:mainans,id',
                 'jumlah_barang' => 'required|integer|min:1',
-                'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
+                'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+                'bank' => 'required|string|in:BCA,BRI'
             ], [
                 'id_produk.required' => 'Produk harus diisi',
                 'id_produk.exists' => 'Produk tidak ditemukan',
@@ -44,7 +45,10 @@ class DashboardController extends Controller
                 'jumlah_barang.min' => 'Jumlah barang minimal 1',
                 'bukti_pembayaran.required' => 'Bukti pembayaran harus diisi',
                 'bukti_pembayaran.image' => 'Bukti pembayaran harus berupa gambar',
-                'bukti_pembayaran.mimes' => 'Bukti pembayaran harus berupa gambar dengan format jpeg, png, jpg, gif, atau svg'
+                'bukti_pembayaran.mimes' => 'Bukti pembayaran harus berupa gambar dengan format jpeg, png, jpg, gif, atau svg',
+                'bank.required' => 'Bank harus diisi',
+                'bank.string' => 'Bank harus berupa string',
+                'bank.in' => 'Bank harus BCA atau BRI'
             ]);
 
             if ($validation->fails()) {
@@ -65,6 +69,7 @@ class DashboardController extends Controller
                 'jumlah' => $request->jumlah_barang,
                 'total_harga' => Mainan::find($request->id_produk)->harga * $request->jumlah_barang,
                 'foto' => $file_name,
+                'bank' => $request->bank
             ]);
 
             DB::commit();

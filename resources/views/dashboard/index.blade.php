@@ -37,6 +37,19 @@
                             </ul>
                         </div>
                         <div class="mb-3">
+                            <label for="bank" class="form-label">Bank</label>
+                            <select class="form-select" id="bank" name="bank">
+                                <option value="" disabled selected>Pilih Bank</option>
+                                <option value="BCA">BCA</option>
+                                <option value="BRI">BRI</option>
+                            </select>
+                            <ul class="text-sm text-red-600 dark:text-red-400 space-y-1 bank-error">
+                        </div>
+                        <div class="mb-3">
+                            <label for="rekening" class="form-label">Rekening</label>
+                            <input type="text" class="form-control" id="rekening" name="rekening" readonly>
+                        </div>
+                        <div class="mb-3">
                             <label for="bukti_pembayaran" class="form-label">Bukti Pembayaran</label>
                             <input type="file" class="form-control" id="bukti_pembayaran" name="bukti_pembayaran"
                                 accept="image/*">
@@ -114,6 +127,7 @@
                     formData.append('jumlah_barang', $('#jumlah_barang').val());
                     formData.append('bukti_pembayaran', $('#bukti_pembayaran')[0].files[0]);
                     formData.append('_token', $('input[name="_token"]').val());
+                    formData.append('bank', $('#bank').val());
 
                     $.ajax({
                         url: "{{ route('purchase.store') }}",
@@ -141,7 +155,6 @@
                             }).then((result) => {
                                 $('#purchaseForm').modal('show');
                                 let errors = xhr.responseJSON.errors;
-                                console.log(errors);
                                 if ('nama_produk' in errors) {
                                     $('.nama_produk-error').html('');
                                     errors.nama_produk.forEach(error => {
@@ -177,10 +190,37 @@
                                 } else {
                                     $('.bukti_pembayaran-error').html('');
                                 }
+
+                                if ('jumlah_barang' in errors) {
+                                    $('.jumlah_barang-error').html('');
+                                    errors.jumlah_barang.forEach(error => {
+                                        $('.jumlah_barang-error').append(`<li>${error}</li>`);
+                                    });
+                                } else {
+                                    $('.jumlah_barang-error').html('');
+                                }
+
+                                if ('bank' in errors) {
+                                    $('.bank-error').html('');
+                                    errors.bank.forEach(error => {
+                                        $('.bank-error').append(`<li>${error}</li>`);
+                                    });
+                                } else {
+                                    $('.bank-error').html('');
+                                }
                             })
                         }
                     });
                 })
+
+                $('#bank').on('change', function() {
+                    let bank = $('#bank').val();
+                    if (bank == 'BCA') {
+                        $('#rekening').val('1234567890 a.n. Toy Store');
+                    } else {
+                        $('#rekening').val('0987654321 a.n. Toy Store');
+                    }
+                });
 
                 $('#purchaseForm').on('hidden.bs.modal', function() {
                     $('.nama_produk-error').html('');

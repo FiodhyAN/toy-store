@@ -17,6 +17,7 @@
                         <th>Harga Produk</th>
                         <th>jumlah</th>
                         <th>Total Harga</th>
+                        <th>Bank</th>
                         <th>Bukti Pembayaran</th>
                     </tr>
                 </thead>
@@ -31,6 +32,7 @@
                             <td>Rp {{ number_format($item->mainan->harga, 0, ',', '.') }}</td>
                             <td>{{ $item->jumlah }}</td>
                             <td>Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
+                            <td>{{ $item->bank }}</td>
                             <td>
                                 <a href="{{ asset('storage/bukti_pembayaran/' . $item->foto) }}" target="_blank">
                                     Lihat Bukti Pembayaran
